@@ -94,7 +94,7 @@ class ActiveRecord::Base
 
           cloned_object = case association_reflection.macro
             when :belongs_to, :has_one
-              self.send(association) && self.send(association).clone(opts, &block)
+              self.send(association) && self.send(association).clone_with_deep_clone(opts, &block)
 
             when :has_many
               reverse_association_name = association_reflection.klass.reflect_on_all_associations.detect do |a|
@@ -102,7 +102,7 @@ class ActiveRecord::Base
               end.try(:name)
 
               self.send(association).collect do |obj|
-                tmp = obj.clone(opts, &block)
+                tmp = obj.clone_with_deep_clone(opts, &block)
                 tmp.send("#{association_reflection.primary_key_name.to_s}=", nil)
                 tmp.send("#{reverse_association_name.to_s}=", kopy) if reverse_association_name
                 tmp
